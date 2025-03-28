@@ -24,8 +24,7 @@ async def transcribe_audio(video_path):
         '-q:a', '0', '-map', 'a', audio_temp,
         '-y', '-loglevel', 'error'
     ]
-    # Roda ffmpeg em um thread separado
-    process = await asyncio.to_thread(
+    await asyncio.to_thread(
         subprocess.run, command, check=True, capture_output=True
     )
     print("Áudio extraído com sucesso.")
@@ -51,7 +50,6 @@ async def transcribe_audio(video_path):
 
     return transcription_text
 
-# --- Nova função extract_frames ---
 async def extract_frames(video_path, interval_seconds=1, scale=1.0):
     """
     Extrai frames de um vídeo em intervalos especificados de forma assíncrona.
@@ -92,7 +90,6 @@ async def extract_frames(video_path, interval_seconds=1, scale=1.0):
             # Garante que o último frame seja incluído se o intervalo não coincidir exatamente
             if total_frames > 0 and (not frames_to_extract or frames_to_extract[-1] < total_frames - 1):
                  # Adiciona o penúltimo frame para evitar potencial problema com o último exato
-                 # Ou podemos adicionar o último frame: total_frames - 1
                  last_frame_index = total_frames - 1
                  if last_frame_index not in frames_to_extract:
                      frames_to_extract.append(last_frame_index)
@@ -131,27 +128,17 @@ async def extract_frames(video_path, interval_seconds=1, scale=1.0):
         print(f"Frames extraídos com sucesso: {len(local_frames_list)}")
         return local_frames_list
 
-    try:
-        extracted_frames = await asyncio.to_thread(sync_extract)
-        return extracted_frames
-    except IOError as e:
-         print(f"Erro de I/O ao processar o vídeo: {e}")
-         raise
-    except Exception as e:
-         print(f"Erro inesperado durante a extração de frames: {e}")
-         raise
+    extracted_frames = await asyncio.to_thread(sync_extract)
+    return extracted_frames
 
-# --- Função para codificar frames em base64 ---
 async def encode_frames_to_base64(frames):
-    """Codifica uma lista de frames (numpy arrays) para strings base64 JPEG."""
+    """Codifica uma lista de frames"""
     encoded_frames = []
     
     def sync_encode(frame):
-        # Codifica o frame como JPEG (mais eficiente para imagens naturais)
         success, buffer = cv2.imencode('.jpg', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
         if not success:
             raise RuntimeError("Falha ao codificar frame para JPEG")
-        # Converte para base64 string
         return base64.b64encode(buffer).decode('utf-8')
 
     # Cria tarefas para codificar cada frame em paralelo usando threads
@@ -165,34 +152,27 @@ async def analyze_video(video_path):
     """Envia frames amostrados e áudio do vídeo para análise pelo GPT-4o (versão assíncrona)"""
     
     print("Iniciando análise de vídeo (extração paralela de frames e áudio)...")
-    # Executa a extração de frames e a transcrição de áudio em paralelo
-    try:
-        # Extrai 1 frame por segundo (padrão)
-        frame_extraction_task = asyncio.create_task(extract_frames(video_path, interval_seconds=1))
-        audio_transcription_task = asyncio.create_task(transcribe_audio(video_path))
+    
+    frame_extraction_task = asyncio.create_task(extract_frames(video_path, interval_seconds=1))
+    audio_transcription_task = asyncio.create_task(transcribe_audio(video_path))
 
-        # Espera ambas as tarefas concluírem
-        extracted_frames, audio_transcription = await asyncio.gather(
-            frame_extraction_task,
-            audio_transcription_task
-        )
-        print("Extração de frames e transcrição de áudio concluídas.")
+    # Espera ambas as tarefas concluírem
+    extracted_frames, audio_transcription = await asyncio.gather(
+        frame_extraction_task,
+        audio_transcription_task
+    )
+    print("Extração de frames e transcrição de áudio concluídas.")
 
-        if not extracted_frames:
-            raise ValueError("Nenhum frame foi extraído do vídeo.")
+    if not extracted_frames:
+        raise ValueError("Nenhum frame foi extraído do vídeo.")
 
-        # Codifica os frames extraídos para base64 em paralelo
-        encoded_frames = await encode_frames_to_base64(extracted_frames)
+    # Codifica os frames extraídos para base64 em paralelo
+    encoded_frames = await encode_frames_to_base64(extracted_frames)
 
-    except Exception as e:
-        print(f"Erro durante o pré-processamento (frames/áudio): {e}")
-        raise # Re-lança a exceção para parar a execução
-
-    # Monta a lista de conteúdo para a API
     content = [
         {
             "type": "text",
-            "text": prompt_video, # Usando o prompt importado
+            "text": prompt_video, 
         }
     ]
     # Adiciona cada frame codificado como uma imagem separada
@@ -201,7 +181,7 @@ async def analyze_video(video_path):
             "type": "image_url",
             "image_url": {
                 "url": f"data:image/jpeg;base64,{encoded_frame}",
-                # 'detail': 'low' pode ser usado para reduzir custo se alta resolução não for crucial
+                'detail': 'high' 
             }
         })
     # Adiciona a transcrição de áudio no final
@@ -214,14 +194,14 @@ async def analyze_video(video_path):
     # Envolve a chamada síncrona da API OpenAI com asyncio.to_thread
     def sync_openai_call():
         response = client.chat.completions.create(
-            model="gpt-4o-mini", # ou gpt-4o para mais capacidade
+            model="gpt-4o-mini", 
             messages=[
                 {
                     "role": "user",
-                    "content": content, # Passa a lista montada
+                    "content": content,
                 }
             ],
-            max_tokens=1000 # Aumentar tokens pode ser necessário com mais frames/info
+            max_tokens=1000 
         )
         return response.choices[0].message.content
 
