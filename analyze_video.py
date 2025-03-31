@@ -87,7 +87,7 @@ async def extract_frames(video_path, interval_seconds=1, scale=1.0):
                 if frame_index < total_frames:
                     frames_to_extract.append(frame_index)
                 current_second += interval_seconds
-            # Garante que o último frame seja incluído se o intervalo não coincidir exatamente
+            # Garante que o último frame seja incluído
             if total_frames > 0 and (not frames_to_extract or frames_to_extract[-1] < total_frames - 1):
                  # Adiciona o penúltimo frame para evitar potencial problema com o último exato
                  last_frame_index = total_frames - 1
@@ -98,12 +98,11 @@ async def extract_frames(video_path, interval_seconds=1, scale=1.0):
 
         local_frames_list = []
         last_extracted_index = -1
-        for frame_index in sorted(list(set(frames_to_extract))): # Ordena e remove duplicados
+        for frame_index in sorted(list(set(frames_to_extract))): 
              if frame_index >= total_frames:
                   continue # Evita buscar frames além do limite
              
              # Otimização: Se o próximo frame a extrair é o seguinte ao último lido, apenas leia.
-             # Caso contrário, reposicione (seek).
              if frame_index != last_extracted_index + 1:
                   video.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
              
@@ -194,7 +193,7 @@ async def analyze_video(video_path):
     # Envolve a chamada síncrona da API OpenAI com asyncio.to_thread
     def sync_openai_call():
         response = client.chat.completions.create(
-            model="gpt-4o-mini", 
+            model="gpt-4o", 
             messages=[
                 {
                     "role": "user",
