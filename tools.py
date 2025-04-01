@@ -1,8 +1,6 @@
 from langchain_core.tools import tool
 import pandas as pd
-
-# criar dataframe 
-
+import os
 
 @tool
 def add_data_to_df(
@@ -14,8 +12,11 @@ def add_data_to_df(
     probabilidade: str,
     nivel_de_Risco: str
     ) -> str:
+    
     """Adiciona dados ao dataframe"""
-    path_data = "C:\\Users\\diham\\segurança-trabalho\\project\\data.csv"
+    path_data = os.path.join(os.path.dirname(__file__), "data.csv")
+    
+    # Specify encoding when reading the CSV
     df = pd.read_csv(path_data)
 
     # Criar um dicionário com os dados
@@ -32,7 +33,8 @@ def add_data_to_df(
     # Adicionar os dados ao dataframe
     df = pd.concat([df, pd.DataFrame([new_data])], ignore_index=True)
 
-    df.to_csv("./data.csv", index=False)
+    # Salvar o dataframe
+    df.to_csv(path_data, index=False)
 
     # Salvar o dataframe
     return "Dados adicionados com sucesso!"
