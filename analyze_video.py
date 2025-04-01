@@ -13,15 +13,16 @@ genai.configure(api_key=apiKey)
 fileList = genai.list_files(page_size=100)
 
 # Check uploaded file.
-def analyze_video(video_file_name:str, 
+def analyze_video(videos_file_name:list[str], 
                   display_name:str="video.mp4",
                   model_name:str="gemini-2.0-flash"):
     
     video_file = next((f for f in fileList if f.display_name == display_name), None)
     if video_file is None:
         print(f"Uploading file...")
-        video_file = genai.upload_file(path=video_file_name, display_name=display_name, resumable=True)
-        print(f"Completed upload: {video_file.uri}")
+        for video_file_name in videos_file_name:
+            video_file = genai.upload_file(path=video_file_name, display_name=display_name, resumable=True)
+            print(f"Completed upload: {video_file.uri}")
     else:
         print(f"File URI: {video_file.uri}")
 
@@ -35,7 +36,11 @@ def analyze_video(video_file_name:str,
         raise ValueError(video_file.state.name)
 
     # Generate content using the uploaded file.
-    model = genai.GenerativeModel(model_name=f'models/{model_name}')
+    model = genai.GenerativeModel(model_name=model_name)
     print("Making LLM inference request...")
     response = model.generate_content([video_file, PROMPT_VIDEO], request_options={"timeout": 600})
     return response.text
+
+if __name__ == "__main__":
+    video_file_name = os.path.join(os.path.dirname(__file__), "video.mp4")
+    print(analyze_video([video_file_name]))
