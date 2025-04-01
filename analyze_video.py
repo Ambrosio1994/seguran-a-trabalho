@@ -1,6 +1,6 @@
 import google.generativeai as genai
 import time
-from prompts import prompt_video
+from prompts import PROMPT_VIDEO
 from dotenv import load_dotenv
 import os
 
@@ -37,5 +37,5 @@ def analyze_video(video_file_name:str,
     # Generate content using the uploaded file.
     model = genai.GenerativeModel(model_name=f'models/{model_name}')
     print("Making LLM inference request...")
-    response = model.generate_content([video_file, prompt_video], request_options={"timeout": 600})
+    response = model.generate_content([video_file, PROMPT_VIDEO], request_options={"timeout": 600})
     return response.text

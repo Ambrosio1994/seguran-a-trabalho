@@ -1,9 +1,13 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
+from uuid import uuid4
+
 from tools import tools
-from prompts import sys_messsage
+from prompts import PROMPT_SYS_MESSAGE
 from analyze_video import analyze_video
+
 import os
 from dotenv import load_dotenv
 
@@ -16,15 +20,15 @@ llm = ChatGoogleGenerativeAI(
 
 llm_with_tools = llm.bind_tools(tools)
 
-# example
-video_file_name = "C:\\Users\\diham\\segurança-trabalho\\project\\video.mp4"
+# Example
+video_file_name = os.path.join(os.path.dirname(__file__), "video.mp4")
 
 def analyze_node(state: MessagesState):
     video = state["messages"]
     return {"messages": analyze_video(video)}
 
 def call_llm(state: MessagesState):
-    return {"messages": [llm_with_tools.invoke([sys_messsage] + state["messages"])]}
+    return {"messages": [llm_with_tools.invoke([PROMPT_SYS_MESSAGE] + state["messages"])]}
 
 builder = StateGraph(MessagesState)
 
@@ -37,9 +41,11 @@ builder.add_edge("analyze_node", "call_llm")
 builder.add_conditional_edges("call_llm", tools_condition)
 builder.add_edge("tools", END)
 
-graph = builder.compile()
+graph = builder.compile(checkpointer=MemorySaver())
 
 if __name__ == "__main__":
-    output = graph.invoke({"messages": [video_file_name]})
+    id = str(uuid4())
+    config = {"configurable": {"thread_id": id, "user_id": id}}
+    output = graph.invoke({"messages": [video_file_name]}, config, stream_mode="values")
     for message in output["messages"]:
         message.pretty_print()

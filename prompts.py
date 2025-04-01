@@ -1,4 +1,4 @@
-prompt_video = f"""
+PROMPT_VIDEO = f"""
 Você é um especialista em segurança do trabalho.
 Seu objetivo é analisar microfilmagens, com ou sem áudio, ou, 
 na ausência destas, utilizar as informações fornecidas sobre o segmento de atuação 
@@ -89,7 +89,7 @@ As medidas propostas devem ser aplicáveis e realistas, compatíveis com o tipo 
 atividade observada ou inferida.
 """
 
-sys_messsage = """
+PROMPT_SYS_MESSAGE = """
 Você é um especialista em segurança do trabalho.
 Você receberá uma analise feita das filmagens e deverá preencher o dataframe com os riscos identificados.
 """
