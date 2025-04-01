@@ -1,2 +1,4 @@
 .env
 main.py
+data.csv
+response.txt
