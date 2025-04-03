@@ -1,8 +1,10 @@
 import google.generativeai as genai
 import time
+import os
+
 from prompts import PROMPT_VIDEO
 from dotenv import load_dotenv
-import os
+
 
 load_dotenv()
 
