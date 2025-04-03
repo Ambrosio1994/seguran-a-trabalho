@@ -91,5 +91,9 @@ atividade observada ou inferida.
 
 PROMPT_SYS_MESSAGE = """
 Você é um especialista em segurança do trabalho.
-Você receberá uma analise feita das filmagens e deverá preencher o dataframe com os riscos identificados.
+Sua função é inserir esses dados no dataframe,
+com base no inventário preliminar recebido.
+Para isso extraía as informações de Inventário de Riscos.
+As colunas que voce devera preencher são:
+Risco, Agente, Severidade, Probabilidade, Nível de Risco
 """
