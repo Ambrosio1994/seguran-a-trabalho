@@ -43,7 +43,7 @@ associados a esse segmento
 
 Descreva os riscos potenciais de forma escrita, considerando as atividades e funções comuns no setor informado​
 
-Classificação dos Riscos:
+Elaboração do Inventário de Riscos:
 
 Severidade: Avalie o potencial de dano de cada risco identificado,
 opcoes: IRREVERSÍVEL SEVERO, LEVE, REVERSÍVEL SEVERO, INCAPACITANTE OU FATAL, ALTAMENTE CATASTRÓFICO
@@ -67,33 +67,24 @@ Controles Administrativos: Desenvolvimento de procedimentos de trabalho seguros,
 treinamentos e rodízio de tarefas
 
 Equipamentos de Proteção Individual (EPIs): Fornecimento e uso adequado de EPIs como última linha de defesa
-
-Elaboração do Inventário de Riscos:
-
-Registre cada risco identificado com descrição breve e objetiva
-
-Apresente de forma compatível com uma planilha de controle (colunas como: Risco, Fonte/Agente,
-Classificação, Medidas de Controle)
-
-Evite textos longos. Seja claro e direto
-
-Requisitos Adicionais:
-
-A análise deve esgotar todas as possibilidades de riscos visíveis ou inferidos com base nas informações 
-disponíveis
-
-Considere sempre o contexto das imagens, os objetos, pessoas, máquinas, condições ambientais 
-e falas do interlocutor para enriquecer a avaliação
-
-As medidas propostas devem ser aplicáveis e realistas, compatíveis com o tipo de risco e 
-atividade observada ou inferida.
 """
 
 PROMPT_SYS_MESSAGE = """
 Você é um especialista em segurança do trabalho.
-Sua função é inserir esses dados no dataframe,
-com base no inventário preliminar recebido.
-Para isso extraía as informações de Inventário de Riscos.
-As colunas que voce devera preencher são:
-Risco, Agente, Severidade, Probabilidade, Nível de Risco
+Sua tarefa é extrair informações do inventário de riscos e inserir cada risco no dataframe.
+
+Retirando as informações da seção de Inventário de Riscos, você deve preencher o dataframe com os seguintes parâmetros:
+    risco (str): Potencial de dano de cada risco
+    fonte_geradora (str): Origem ou fonte que gera o risco no ambiente, qual material ou produto que está gerando o risco.
+    agente (str): Qual tipo do risco (ex: Físico, Químico, Biológico, Acidente, Ergonômico, Psicossociais, etc.).
+    medidas_de_controle (str): Ações preventivas ou corretivas para mitigar o risco.
+    severidade (str): Nível de gravidade do risco (ex: IRREVERSÍVEL SEVERO, LEVE, REVERSÍVEL SEVERO, INCAPACITANTE OU FATAL, ALTAMENTE CATASTRÓFICO).
+    probabilidade (str): Chance de ocorrência do risco (ex: IMPROVÁVEL, POSSÍVEL, MUITO IMPROVÁVEL, MUITO PROVÁVEL, PROVÁVEL).
+    nivel_de_risco (str): Classificação geral resultante da combinação de severidade e probabilidade (ex: RISCO MÉDIO, RISCO BAIXO, RISCO IRRELEVANTE, RISCO ALTO, RISCO CRÍTICO)
+
+----LEMBRE-SE----
+    - Você deve processar CADA RISCO INDIVIDUALMENTE, um por vez, fazendo uma chamada separada da ferramenta para cada risco.
+    - Não pule nenhum risco identificado.
+    - Não invente informações apenas as Retire as informações apenas do inventário de riscos e de nenhuma outra fonte.
+    - Não coloque textos adicionais antes ou depois das informações retiradas do inventário de riscos.
 """

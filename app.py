@@ -56,38 +56,12 @@ else:
                     config = {"configurable": {"thread_id": thread_id, "user_id": thread_id}}
                     
                     graph = graph_builder()
-                    # A execução do grafo pode chamar ferramentas internas que atualizam o data.csv
-                    final_state = None
-                    try:
-                        # Iterar sobre os resultados do stream para obter o estado final
-                        # O stream_mode="values" retorna cada estado atualizado.
-                        # O valor final retornado por invoke nesse modo pode não ser o último estado completo.
-                        # Uma abordagem mais robusta seria capturar o último valor do stream.
-                        # Para simplificar por agora, vamos assumir que a invoke retorna o estado final se não houver erro.
-                        # TODO: Implementar um tratamento mais robusto para capturar o último estado do stream.
-                        result_stream = graph.stream({"messages": [temp_video_path]}, config, stream_mode="values")
-                        for value in result_stream:
-                             final_state = value # Keep track of the latest state
+                    result = graph.stream({"messages": [temp_video_path]}, config, stream_mode="values")
+                    st.write(result)
 
-                        if final_state and "messages" in final_state:
-                            # Exibe a última mensagem do assistente (resultado da análise)
-                            last_message = final_state["messages"][-1]
-                            if hasattr(last_message, 'content'):
-                                st.subheader("📝 Resumo da Análise:")
-                                st.markdown(last_message.content)
-                            else:
-                                # Caso a última mensagem não seja um objeto esperado (ex: AIMessage)
-                                st.write("Resultado da análise:", last_message)
+                    st.subheader("📊 Inventário de Riscos Atualizado")
 
-                            st.subheader("📊 Inventário de Riscos Atualizado")
-                        else:
-                             st.warning("A análise foi concluída, mas não retornou um estado final esperado.")
-
-                    except Exception as e:
-                        st.error(f"Erro ao analisar o vídeo: {e}")
-                        st.stop()
-
-            # Recarrega o inventário de riscos após a análise (que pode ter modificado o CSV)
+            # Recarrega o inventário de riscos após a análise
             updated_df = load_risk_inventory()
             if updated_df is not None:
                 st.dataframe(updated_df)
