@@ -1,4 +1,5 @@
 import streamlit as st
+from langchain_core.messages import HumanMessage
 import pandas as pd
 import os
 import tempfile
@@ -56,10 +57,14 @@ else:
                     config = {"configurable": {"thread_id": thread_id, "user_id": thread_id}}
                     
                     graph = graph_builder()
-                    result = graph.stream({"messages": [temp_video_path]}, config, stream_mode="values")
-                    st.write(result)
+                    input = HumanMessage(content=temp_video_path)
+                    result = graph.invoke({"messages": [input]}, config)
+                    if result:
+                        st.success("Inventário atualizado com sucesso!")
+                    else:
+                        st.error("Erro ao atualizar o inventário")
 
-                    st.subheader("📊 Inventário de Riscos Atualizado")
+                st.subheader("📊 Inventário de Riscos Atualizado")
 
             # Recarrega o inventário de riscos após a análise
             updated_df = load_risk_inventory()

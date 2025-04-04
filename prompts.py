@@ -44,47 +44,22 @@ associados a esse segmento
 Descreva os riscos potenciais de forma escrita, considerando as atividades e funções comuns no setor informado​
 
 Elaboração do Inventário de Riscos:
+risco : Potencial de dano de cada risco
+fonte_geradora : Origem ou fonte que gera o risco no ambiente, qual material ou produto que está gerando o risco.
+agente : Qual tipo do risco (ex: Físico, Químico, Biológico, Acidente, Ergonômico, Psicossociais, etc.).
+medidas_de_controle : Ações preventivas ou corretivas para mitigar o risco.
+severidade : Nível de gravidade do risco (ex: IRREVERSÍVEL SEVERO, LEVE, REVERSÍVEL SEVERO, INCAPACITANTE OU FATAL, ALTAMENTE CATASTRÓFICO).
+probabilidade : Chance de ocorrência do risco (ex: IMPROVÁVEL, POSSÍVEL, MUITO IMPROVÁVEL, MUITO PROVÁVEL, PROVÁVEL).
+nivel_de_risco : Classificação geral resultante da combinação de severidade e probabilidade (ex: RISCO MÉDIO, RISCO BAIXO, RISCO IRRELEVANTE, RISCO ALTO, RISCO CRÍTICO)
 
-Severidade: Avalie o potencial de dano de cada risco identificado,
-opcoes: IRREVERSÍVEL SEVERO, LEVE, REVERSÍVEL SEVERO, INCAPACITANTE OU FATAL, ALTAMENTE CATASTRÓFICO
-
-Probabilidade: Estime a frequência com que o risco pode ocorrer
-opcoes: IMPROVÁVEL, POSSÍVEL, MUITO IMPROVÁVEL, MUITO PROVÁVEL, PROVÁVEL
-
-Nível de Risco: Calcule combinando a severidade e a probabilidade, 
-conforme a matriz de risco adotada pela organização
-opcoes: RISCO MÉDIO, RISCO BAIXO, RISCO IRRELEVANTE, RISCO ALTO, RISCO CRÍTICO
-
-Proposição de Medidas de Controle:
-
-Eliminação: Remoção completa do risco
-
-Substituição: Troca por processos ou substâncias menos perigosas
-
-Controles de Engenharia: Implementação de barreiras físicas ou modificações no ambiente de trabalho
-
-Controles Administrativos: Desenvolvimento de procedimentos de trabalho seguros, 
-treinamentos e rodízio de tarefas
-
-Equipamentos de Proteção Individual (EPIs): Fornecimento e uso adequado de EPIs como última linha de defesa
+Sua resposta final deverá conter apenas o inventário de riscos, sem nenhum texto adicional.
+Coloque o inventário de riscos em formato de tabela, e envolva essa tabela em uma tag <inicio_inventario_de_riscos> e <fim_inventario_de_riscos>
 """
 
 PROMPT_SYS_MESSAGE = """
 Você é um especialista em segurança do trabalho.
 Sua tarefa é extrair informações do inventário de riscos e inserir cada risco no dataframe.
 
-Retirando as informações da seção de Inventário de Riscos, você deve preencher o dataframe com os seguintes parâmetros:
-    risco (str): Potencial de dano de cada risco
-    fonte_geradora (str): Origem ou fonte que gera o risco no ambiente, qual material ou produto que está gerando o risco.
-    agente (str): Qual tipo do risco (ex: Físico, Químico, Biológico, Acidente, Ergonômico, Psicossociais, etc.).
-    medidas_de_controle (str): Ações preventivas ou corretivas para mitigar o risco.
-    severidade (str): Nível de gravidade do risco (ex: IRREVERSÍVEL SEVERO, LEVE, REVERSÍVEL SEVERO, INCAPACITANTE OU FATAL, ALTAMENTE CATASTRÓFICO).
-    probabilidade (str): Chance de ocorrência do risco (ex: IMPROVÁVEL, POSSÍVEL, MUITO IMPROVÁVEL, MUITO PROVÁVEL, PROVÁVEL).
-    nivel_de_risco (str): Classificação geral resultante da combinação de severidade e probabilidade (ex: RISCO MÉDIO, RISCO BAIXO, RISCO IRRELEVANTE, RISCO ALTO, RISCO CRÍTICO)
-
-----LEMBRE-SE----
-    - Você deve processar CADA RISCO INDIVIDUALMENTE, um por vez, fazendo uma chamada separada da ferramenta para cada risco.
-    - Não pule nenhum risco identificado.
-    - Não invente informações apenas as Retire as informações apenas do inventário de riscos e de nenhuma outra fonte.
-    - Não coloque textos adicionais antes ou depois das informações retiradas do inventário de riscos.
+O inventário de riscos está entre as tags <inicio_inventario_de_riscos> e <fim_inventario_de_riscos>
+Somente extraia as informações e insira no dataframe.
 """

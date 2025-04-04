@@ -1,6 +1,8 @@
 from langchain_core.tools import tool
 import pandas as pd
 import os
+from typing_extensions import Annotated
+import time
 """
 Esta função adiciona novos registros de riscos ocupacionais a um arquivo CSV existente. 
 Ela é decorada com @tool da LangChain para ser usada como uma ferramenta dentro de aplicações 
@@ -9,28 +11,67 @@ que utilizam esse framework.
 # Função para adicionar dados ao DataFrame
 @tool
 def add_data_to_df(
-    risco: str,
-    fonte_geradora: str,
-    agente: str,
-    medidas_de_controle: str,
-    severidade: str,
-    probabilidade: str,
-    nivel_de_risco: str
+    risco: Annotated[str, "Potencial de dano de cada risco"],
+    fonte_geradora: Annotated[str, "Fonte geradora do risco"],
+    agente: Annotated[str, "Qual tipo do risco (ex: Físico, Químico, Biológico, Acidente, Ergonômico, Psicossociais, etc.)"],
+    medidas_de_controle: Annotated[str, "Ações preventivas ou corretivas para mitigar o risco"],
+    severidade: Annotated[str, "Nível de gravidade do risco (ex: IRREVERSÍVEL SEVERO, LEVE, REVERSÍVEL SEVERO, INCAPACITANTE OU FATAL, ALTAMENTE CATASTRÓFICO)."],
+    probabilidade: Annotated[str, "Chance de ocorrência do risco (ex: IMPROVÁVEL, POSSÍVEL, MUITO IMPROVÁVEL, MUITO PROVÁVEL, PROVÁVEL)."],
+    nivel_de_risco: Annotated[str, "Classificação geral resultante da combinação de severidade e probabilidade (ex: RISCO MÉDIO, RISCO BAIXO, RISCO IRRELEVANTE, RISCO ALTO, RISCO CRÍTICO)"]
     ) -> str:
-    """Adiciona dados ao dataframe
-      Parameters:
-      risco (str): Potencial de dano de cada risco
-      fonte_geradora (str): Origem ou fonte que gera o risco no ambiente, qual material ou produto que está gerando o risco.
-      agente (str): Qual tipo do risco (ex: Físico, Químico, Biológico, Acidente, Ergonômico, Psicossociais, etc.).
-      medidas_de_controle (str): Ações preventivas ou corretivas para mitigar o risco.
-      severidade (str): Nível de gravidade do risco (ex: IRREVERSÍVEL SEVERO, LEVE, REVERSÍVEL SEVERO, INCAPACITANTE OU FATAL, ALTAMENTE CATASTRÓFICO).
-      probabilidade (str): Chance de ocorrência do risco (ex: IMPROVÁVEL, POSSÍVEL, MUITO IMPROVÁVEL, MUITO PROVÁVEL, PROVÁVEL).
-      nivel_de_risco (str): Classificação geral resultante da combinação de severidade e probabilidade (ex: RISCO MÉDIO, RISCO BAIXO, RISCO IRRELEVANTE, RISCO ALTO, RISCO CRÍTICO)
-    """
+    """Adiciona dados ao dataframe"""
+    
+    # Validar se algum campo está vazio
+    campos = {
+        "risco": risco,
+        "fonte_geradora": fonte_geradora,
+        "agente": agente,
+        "medidas_de_controle": medidas_de_controle,
+        "severidade": severidade,
+        "probabilidade": probabilidade,
+        "nivel_de_risco": nivel_de_risco
+    }
+    
+    # Validações adicionais para garantir que os valores estão dentro de opções válidas
+    opcoes_validas = {
+        "agente": ["Físico", "Químico", "Biológico", "Acidente", "Ergonômico", "Psicossociais"],
+        "severidade": ["IRREVERSÍVEL SEVERO", "LEVE", "REVERSÍVEL SEVERO", "INCAPACITANTE OU FATAL", "ALTAMENTE CATASTRÓFICO"],
+        "probabilidade": ["IMPROVÁVEL", "POSSÍVEL", "MUITO IMPROVÁVEL", "MUITO PROVÁVEL", "PROVÁVEL"],
+        "nivel_de_risco": ["RISCO MÉDIO", "RISCO BAIXO", "RISCO IRRELEVANTE", "RISCO ALTO", "RISCO CRÍTICO"]
+    }
+    
+    for campo, opcoes in opcoes_validas.items():
+        valor = campos[campo].upper()
+        # Verificação flexível para permitir variações comuns
+        if not any(opcao.upper() in valor for opcao in opcoes):
+            return f"Erro: O valor '{campos[campo]}' para o campo '{campo}' não é válido. Valores aceitos: {', '.join(opcoes)}."
+    
     path_data = os.path.join(os.path.dirname(__file__), "data.csv")
 
-    # Ler o CSV existente
-    df = pd.read_csv(path_data)
+    # Ler o CSV existente com tratamento de erros de codificação
+    df = pd.read_csv(path_data, encoding='utf-8', on_bad_lines='skip')
+    
+    # Limpar linhas inválidas (com menos campos preenchidos que o esperado)
+    campos_esperados = ["Risco", "Fonte_Geradora", "Agente", "Medidas_de_Controle", 
+                        "Severidade", "Probabilidade", "Nivel_de_Risco"]
+    
+    # Identificar linhas com dados incompletos
+    linhas_validas = df.notna().sum(axis=1) >= len(campos_esperados) - 1 
+    if not all(linhas_validas):
+        df = df[linhas_validas]
+        # Salvar o dataframe limpo
+        df.to_csv(path_data, index=False, encoding='utf-8')
+        
+
+        df = pd.read_csv(path_data, encoding='latin1', on_bad_lines='skip')
+        # Aplicar limpeza também neste caso
+        linhas_validas = df.notna().sum(axis=1) >= len(campos_esperados) - 1
+        if not all(linhas_validas):
+            df = df[linhas_validas]
+            df.to_csv(path_data, index=False, encoding='utf-8')
+        # Se ainda falhar, criar um dataframe vazio com as colunas necessárias
+        df = pd.DataFrame(columns=["Risco", "Fonte_Geradora", "Agente", "Medidas_de_Controle", 
+                                  "Severidade", "Probabilidade", "Nivel_de_Risco"])
 
     # Criar um dicionário com os dados
     new_data = {
@@ -42,11 +83,25 @@ def add_data_to_df(
         "Probabilidade": probabilidade,
         "Nivel_de_Risco": nivel_de_risco
     }
+    
+    # Verificar se o registro já existe no dataframe
+    duplicate_entry = df[
+        (df['Risco'] == risco) & 
+        (df['Fonte_Geradora'] == fonte_geradora) & 
+        (df['Agente'] == agente) & 
+        (df['Medidas_de_Controle'] == medidas_de_controle) & 
+        (df['Severidade'] == severidade) & 
+        (df['Probabilidade'] == probabilidade) & 
+        (df['Nivel_de_Risco'] == nivel_de_risco)
+    ]
+    
+    if not duplicate_entry.empty:
+        return f"Registro já existe no inventário de riscos. Dados não adicionados."
 
     # Adicionar os dados ao dataframe
     df = pd.concat([df, pd.DataFrame([new_data])], ignore_index=True)
 
     # Salvar o dataframe
-    df.to_csv(path_data, index=False)
-
+    df.to_csv(path_data, index=False, encoding='utf-8')
+    time.sleep(1)
     return f"Dados adicionados com sucesso! {new_data}"

@@ -1,1 +1,5 @@
 Risco,Fonte_Geradora,Agente,Medidas_de_Controle,Severidade,Probabilidade,Nivel_de_Risco
+Ruído,Esmerilhadeira,Físico,"Utilização de protetores auriculares, manutenção preventiva da máquina",Leve,Provável,Risco Médio
+Choque elétrico,Carregador de bateria,Acidente,"Inspeção regular das instalações elétricas, aterramento, uso de EPI adequado (luvas isolantes)",INCAPACITANTE OU FATAL,Improvável,Risco Médio
+Cortes e abrasões,Esmerilhadeira,Acidente,"Uso de EPI (luvas de proteção, óculos de segurança), treinamento adequado, proteção física na máquina",Reversível Severo,Possível,Risco Alto
+Posturas inadequadas,Trabalho em bancada,Ergonômico,"Ajuste da altura da bancada, pausas regulares, ginástica laboral",Leve,Provável,Risco Médio
