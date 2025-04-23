@@ -1,13 +1,14 @@
 import pandas as pd
 import os
 from typing_extensions import Annotated
-import time
+from agents import function_tool
 """
 Esta função adiciona novos registros de riscos ocupacionais a um arquivo CSV existente. 
 Ela é decorada com @tool da LangChain para ser usada como uma ferramenta dentro de aplicações 
 que utilizam esse framework.
 """
 # Função para adicionar dados ao DataFrame
+@function_tool
 def add_data_to_df(
     risco: Annotated[str, "Potencial de dano de cada risco"],
     fonte_geradora: Annotated[str, "Fonte geradora do risco"],
@@ -101,5 +102,4 @@ def add_data_to_df(
 
     # Salvar o dataframe
     df.to_csv(path_data, index=False, encoding='utf-8')
-    time.sleep(1)
     return f"Dados adicionados com sucesso! {new_data}"

@@ -5,16 +5,17 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.prebuilt import ToolNode
 from trustcall import create_extractor
 import streamlit as st
-
+from analyze_video import analyze_video
 from tools import add_data_to_df
 from prompts import PROMPT_SYS_MESSAGE
-from analyze_video import analyze_video
 
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# MODULO NÃO SERA MAIS UTILIZADO
+# Arquivo main.py irá chamar o analyze_video
 video_file_name = os.path.join(os.path.dirname(__file__), "video.mp4")
 
 def analyze_node(state: MessagesState):
