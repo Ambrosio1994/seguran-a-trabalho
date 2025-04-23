@@ -1,4 +1,3 @@
-from langchain_core.tools import tool
 import pandas as pd
 import os
 from typing_extensions import Annotated
@@ -9,7 +8,6 @@ Ela é decorada com @tool da LangChain para ser usada como uma ferramenta dentro
 que utilizam esse framework.
 """
 # Função para adicionar dados ao DataFrame
-@tool
 def add_data_to_df(
     risco: Annotated[str, "Potencial de dano de cada risco"],
     fonte_geradora: Annotated[str, "Fonte geradora do risco"],

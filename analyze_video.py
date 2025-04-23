@@ -1,14 +1,14 @@
 import google.generativeai as genai
 import time
 import os
+from dotenv import load_dotenv
 
 from prompts import PROMPT_VIDEO
-from dotenv import load_dotenv
 
 load_dotenv()
 
-apiKey = os.getenv('GEMINI_API_KEY')
-genai.configure(api_key=apiKey)
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+genai.configure(api_key=GEMINI_API_KEY)
 
 fileList = genai.list_files(page_size=100)
 
