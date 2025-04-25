@@ -4,7 +4,7 @@ from typing_extensions import Annotated
 from agents import function_tool
 """
 Esta função adiciona novos registros de riscos ocupacionais a um arquivo CSV existente. 
-Ela é decorada com @tool da LangChain para ser usada como uma ferramenta dentro de aplicações 
+Ela é decorada com @function_tool da OpenAI para ser usada como uma ferramenta dentro de aplicações 
 que utilizam esse framework.
 """
 # Função para adicionar dados ao DataFrame
@@ -83,20 +83,6 @@ def add_data_to_df(
         "Nivel_de_Risco": nivel_de_risco
     }
     
-    # Verificar se o registro já existe no dataframe
-    duplicate_entry = df[
-        (df['Risco'] == risco) & 
-        (df['Fonte_Geradora'] == fonte_geradora) & 
-        (df['Agente'] == agente) & 
-        (df['Medidas_de_Controle'] == medidas_de_controle) & 
-        (df['Severidade'] == severidade) & 
-        (df['Probabilidade'] == probabilidade) & 
-        (df['Nivel_de_Risco'] == nivel_de_risco)
-    ]
-    
-    if not duplicate_entry.empty:
-        return f"Registro já existe no inventário de riscos. Dados não adicionados."
-
     # Adicionar os dados ao dataframe
     df = pd.concat([df, pd.DataFrame([new_data])], ignore_index=True)
 

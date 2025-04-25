@@ -3,7 +3,7 @@ import time
 import os
 from dotenv import load_dotenv
 
-from my_project.prompts import PROMPT_VIDEO
+from prompts import PROMPT_VIDEO
 
 load_dotenv()
 
@@ -13,9 +13,18 @@ genai.configure(api_key=GEMINI_API_KEY)
 fileList = genai.list_files(page_size=100)
 
 # Check uploaded file
-def analyze_video(video_file_name, 
+def analyze_video(video_file_name:str, 
                   display_name:str="video.mp4",
                   model_name:str="gemini-2.0-flash"):
+    """
+    Analisa o vídeo enviado e retorna o texto da análise.
+    params:
+        video_file_name: str - Caminho do vídeo a ser analisado.
+        display_name: str - Nome do vídeo a ser analisado.
+        model_name: str - Modelo de IA a ser utilizado.
+    return:
+        str - Texto da análise do vídeo.
+    """
     
     video_file = next((f for f in fileList if f.display_name == display_name), None)
     if video_file is None:
