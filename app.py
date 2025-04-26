@@ -50,7 +50,6 @@ else:
                 with open(temp_video_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
                 
-                st.info(f"Vídeo salvo temporariamente em: {temp_video_path}")
                 with st.spinner("Analisando o vídeo... Isso pode levar alguns minutos."):
                     result = asyncio.run(assistant(temp_video_path))
                     if result:
