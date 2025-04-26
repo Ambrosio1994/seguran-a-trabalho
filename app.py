@@ -1,16 +1,15 @@
 import streamlit as st
-from langchain_core.messages import HumanMessage
 import pandas as pd
 import os
 import tempfile
-from uuid import uuid4
-from graph import graph_builder 
+from main import assistant
+import asyncio
 
 # Constantes
 DATA_CSV_PATH = os.path.join(os.path.dirname(__file__), "data.csv")
 ALLOWED_VIDEO_FORMATS = ["mp4", "mov", "avi", "mkv"]
 
-#seta o tema e layout da página
+# seta o tema e layout da página
 st.set_page_config(page_title="Análise de Risco em Vídeo", layout="wide")
 st.title("🤖 Análise de Risco Ocupacional em Vídeo")
 st.write("""
@@ -53,12 +52,7 @@ else:
                 
                 st.info(f"Vídeo salvo temporariamente em: {temp_video_path}")
                 with st.spinner("Analisando o vídeo... Isso pode levar alguns minutos."):
-                    thread_id = str(uuid4())
-                    config = {"configurable": {"thread_id": thread_id, "user_id": thread_id}}
-                    
-                    graph = graph_builder()
-                    input = HumanMessage(content=temp_video_path)
-                    result = graph.invoke({"messages": [input]}, config)
+                    result = asyncio.run(assistant(temp_video_path))
                     if result:
                         st.success("Inventário atualizado com sucesso!")
                     else:
