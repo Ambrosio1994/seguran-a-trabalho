@@ -89,3 +89,19 @@ def add_data_to_df(
     # Salvar o dataframe
     df.to_csv(path_data, index=False, encoding='utf-8')
     return f"Dados adicionados com sucesso! {new_data}"
+
+@function_tool
+def head_df():
+    """Retorna as primeiras linhas do dataframe"""
+    path_data = os.path.join(os.path.dirname(__file__), "data.csv")
+    df = pd.read_csv(path_data, encoding='utf-8', on_bad_lines='skip')
+    return df.head()
+
+@function_tool
+def tail_df():
+    """Retorna as últimas linhas do dataframe"""
+    path_data = os.path.join(os.path.dirname(__file__), "data.csv")
+    df = pd.read_csv(path_data, encoding='utf-8', on_bad_lines='skip')
+    return df.tail()
+
+tools = [add_data_to_df, head_df, tail_df]
